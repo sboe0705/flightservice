@@ -219,8 +219,8 @@ public class FlightMaintenanceView extends CustomComponent implements View {
 			Flight flight = flightFieldGroup.getItemDataSource().getBean();
 			travelService.saveFlight(flight);
 			flightFieldGroup.setItemDataSource(new Flight());
+			refreshFlightTable();
 		}
-		refreshFlightTable();
 	}
 
 	private void onResetButtonClick() {
