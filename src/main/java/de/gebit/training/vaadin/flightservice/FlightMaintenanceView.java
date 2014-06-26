@@ -1,12 +1,19 @@
 package de.gebit.training.vaadin.flightservice;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.validator.DateRangeValidator;
+import com.vaadin.data.validator.DoubleRangeValidator;
+import com.vaadin.data.validator.RegexpValidator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
@@ -77,6 +84,7 @@ public class FlightMaintenanceView extends CustomComponent implements View {
 		numberTextField.setRequired(true);
 		numberTextField.setRequiredError("Please enter a flight number!");
 		numberTextField.setNullRepresentation("");
+		numberTextField.addValidator(new RegexpValidator("\\w\\w\\d\\d\\d", "Please enter a valid flight number!"));
 
 		TextField airlineTextField = new TextField("Airline");
 		airlineTextField.setRequired(true);
@@ -102,11 +110,13 @@ public class FlightMaintenanceView extends CustomComponent implements View {
 		priceField.setRequiredError("Please enter a price!");
 		priceField.setNullRepresentation("");
 		priceField.setConverter(new StringToBigDecimalConverter());
+		priceField.addValidator(new BigDecimalRangeValidator("Please enter a valid price!", new BigDecimal("0.01"), null));
 
 		DateField departureField = new DateField("Departure Date");
 		departureField.setDateFormat("dd.MM.yyyy");
 		departureField.setRequired(true);
 		departureField.setRequiredError("Please enter a departure date!");
+		departureField.addValidator(new DateRangeValidator("Please enter departure date in the future!", new Date(), null, Resolution.DAY));
 
 		flightFieldGroup.bind(numberTextField, "number");
 		flightFieldGroup.bind(airlineTextField, "airline");
@@ -219,8 +229,8 @@ public class FlightMaintenanceView extends CustomComponent implements View {
 			Flight flight = flightFieldGroup.getItemDataSource().getBean();
 			travelService.saveFlight(flight);
 			flightFieldGroup.setItemDataSource(new Flight());
+			refreshFlightTable();
 		}
-		refreshFlightTable();
 	}
 
 	private void onResetButtonClick() {
