@@ -14,6 +14,8 @@ import de.gebit.training.vaadin.workshop.service.Reservation;
 
 public class FlightServiceUI extends UI {
 
+	private Reservation reservation;
+
 	@Override
 	protected void init(VaadinRequest request) {
 
@@ -73,6 +75,14 @@ public class FlightServiceUI extends UI {
 		});
 
 		return menuBar;
+	}
+
+	public Reservation getReservation() {
+		return reservation;
+	}
+
+	public void setReservation(Reservation reservation) {
+		this.reservation = reservation;
 	}
 
 }

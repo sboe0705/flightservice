@@ -36,13 +36,13 @@ public class FlightBookingView extends CustomComponent implements View {
 	private FormLayout flightInformationPanel;
 
 	public FlightBookingView() {
-
+		
 		flightFieldGroup.setReadOnly(true);
-
+		
 		ListSelect flightSelect = createFlightSelect();
 
 		flightInformationPanel = createFlightInformationPanel();
-
+		
 		Button nextButton = createNextButton();
 
 		Button cancelButton = createCancelButton();
@@ -62,17 +62,17 @@ public class FlightBookingView extends CustomComponent implements View {
 		flightSelect.setItemCaptionPropertyId("number");
 
 		reservationFieldGroup.bind(flightSelect, "flight");
-
+		
 		flightSelect.setImmediate(true);
 		flightSelect.addValueChangeListener(new ValueChangeListener() {
-
+			
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				updateFlightInformationPanel((Flight) event.getProperty().getValue());
 			}
-
+			
 		});
 
 		return flightSelect;
@@ -81,23 +81,23 @@ public class FlightBookingView extends CustomComponent implements View {
 	private FormLayout createFlightInformationPanel() {
 		TextField departureField = new TextField("Departure");
 		departureField.setReadOnly(true);
-
+		
 		TextField destinationField = new TextField("Destination");
 		destinationField.setReadOnly(true);
-
-		TextField dateField = new TextField("Date");
+		
+		TextField dateField	= new TextField("Date");
 		dateField.setReadOnly(true);
 		dateField.setNullRepresentation("");
-
+		
 		flightFieldGroup.bind(departureField, "departureAirportCity");
 		flightFieldGroup.bind(destinationField, "destinationAirportCity");
 		flightFieldGroup.bind(dateField, "date");
-
+		
 		FormLayout formLayout = new FormLayout(departureField, destinationField, dateField);
 		formLayout.setCaption("Flight Information");
 		return formLayout;
 	}
-
+	
 	private void updateFlightInformationPanel(Flight flight) {
 		if (flight == null) {
 			flightFieldGroup.setItemDataSource(new Flight());
@@ -115,10 +115,11 @@ public class FlightBookingView extends CustomComponent implements View {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				FlightServiceUI flightServiceUI = (FlightServiceUI) getUI();
+				flightServiceUI.setReservation(null);
 				Notification.show("Booking cancelled!");
 				getUI().getNavigator().navigateTo(NavigationState.HOME);
 			}
-
+			
 		});
 		return nextButton;
 	}
@@ -147,7 +148,7 @@ public class FlightBookingView extends CustomComponent implements View {
 				}
 
 			}
-
+			
 		});
 		return nextButton;
 	}
@@ -157,10 +158,16 @@ public class FlightBookingView extends CustomComponent implements View {
 		flightContainer.removeAllItems();
 		flightContainer.addAll(TravelServiceFactory.getInstance().getFlights());
 
-		// TODO Create new or get reservation from session context!
-		Reservation reservation = new Reservation();
-
-		 reservationFieldGroup.setItemDataSource(reservation);
+		Reservation reservation;
+		
+		FlightServiceUI flightServiceUI = (FlightServiceUI) getUI();
+		reservation = flightServiceUI.getReservation();
+		if (reservation == null) {
+			reservation = new Reservation();
+			flightServiceUI.setReservation(reservation);
+		}
+		
+		reservationFieldGroup.setItemDataSource(reservation);
 	}
 
 }

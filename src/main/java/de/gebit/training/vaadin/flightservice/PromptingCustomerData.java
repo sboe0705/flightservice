@@ -103,7 +103,8 @@ public class PromptingCustomerData extends CustomComponent implements View {
 					reservation.setCustomer(customer);
 					TravelServiceFactory.getInstance().bookFlight(reservation);
 					
-					// TODO Remove reservation from session context!
+					FlightServiceUI flightServiceUI = (FlightServiceUI) getUI();
+					flightServiceUI.setReservation(null);
 					
 					getUI().getNavigator().navigateTo(NavigationState.HOME);
 					
@@ -118,7 +119,8 @@ public class PromptingCustomerData extends CustomComponent implements View {
 	@Override
 	public void enter(ViewChangeEvent event) {
 		
-		// TODO Get reservation from session context!
+		FlightServiceUI flightServiceUI = (FlightServiceUI) getUI();
+		reservation = flightServiceUI.getReservation();
 		
 		if (reservation == null) {
 			getUI().getNavigator().navigateTo(NavigationState.FLIGHT_BOOKING);
