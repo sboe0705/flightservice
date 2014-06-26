@@ -1,5 +1,6 @@
 package de.gebit.training.vaadin.flightservice;
 
+import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Component;
@@ -12,6 +13,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import de.gebit.training.vaadin.workshop.service.Reservation;
 
+@Theme("flight")
 public class FlightServiceUI extends UI {
 
 	private Reservation reservation;

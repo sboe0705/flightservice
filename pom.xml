@@ -31,6 +31,12 @@
 			<artifactId>travelservice</artifactId>
 			<version>0.0.1</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>de.gebit.training.vaadin</groupId>
+			<artifactId>flight-theme</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 
 	</dependencies>
 
