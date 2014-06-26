@@ -65,6 +65,7 @@ public class FlightMaintenanceView extends CustomComponent implements View {
 	}
 
 	private FormLayout createForm() {
+		// TODO Create flight form!
 		return new FormLayout();
 	}
 
