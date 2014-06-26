@@ -21,7 +21,11 @@ public class BookingCancellationView extends CustomComponent implements View {
 	
 	public BookingCancellationView() {
 		
-		// Configure table!
+		table.addContainerProperty("customerFullName", String.class, null);
+		table.addContainerProperty("flightNumber", String.class, null);
+		table.addContainerProperty("departureCity", String.class, null);
+		table.addContainerProperty("destinationCity", String.class, null);
+		table.addContainerProperty("cancelButton", Button.class, null);
 		
 		setCompositionRoot(table);
 	}
@@ -39,10 +43,19 @@ public class BookingCancellationView extends CustomComponent implements View {
 			String departureCity = reservation.getFlight().getDepartureAirport().getCity();
 			String destinationCity = reservation.getFlight().getDestinationAirport().getCity();
 
-			// TODO Create cancel button!
-			
-			// TODO Fill table!
+			Button cancelButton = new Button("Cancel");
+			cancelButton.addClickListener(new ClickListener() {
 
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void buttonClick(ClickEvent event) {
+					onCancelButtonClick(reservation.getId());
+				}
+
+			});
+			
+			table.addItem(new Object[] { customerFullName, flightNumber, departureCity, destinationCity, cancelButton }, reservation);
 		}
 	}
 	
