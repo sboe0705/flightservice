@@ -10,6 +10,8 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import de.gebit.training.vaadin.workshop.service.Reservation;
+
 public class FlightServiceUI extends UI {
 
 	@Override
@@ -24,6 +26,7 @@ public class FlightServiceUI extends UI {
 		navigator.addView(NavigationState.FLIGHT_MAINTENANCE, FlightMaintenanceView.class);
 		navigator.addView(NavigationState.FLIGHT_BOOKING, FlightBookingView.class);
 		navigator.addView(NavigationState.BOOKING_CANCELLATION, BookingCancellationView.class);
+		navigator.addView(NavigationState.PROMPTING_CUSTOMER_DATA, PromptingCustomerData.class);
 		navigator.navigateTo(NavigationState.HOME);
 
 		VerticalLayout verticalLayout = new VerticalLayout();
@@ -47,23 +50,23 @@ public class FlightServiceUI extends UI {
 		});
 
 		administration.addItem("Flights", new Command() {
-			
+
 			public void menuSelected(MenuItem selectedItem) {
 				getNavigator().navigateTo(NavigationState.FLIGHT_MAINTENANCE);
 			}
 		});
 
 		MenuItem booking = menuBar.addItem("Booking", null);
-		
+
 		booking.addItem("Book Flight", new Command() {
-			
+
 			public void menuSelected(MenuItem selectedItem) {
 				getNavigator().navigateTo(NavigationState.FLIGHT_BOOKING);
 			}
 		});
-		
+
 		booking.addItem("Cancel Reservation", new Command() {
-			
+
 			public void menuSelected(MenuItem selectedItem) {
 				getNavigator().navigateTo(NavigationState.BOOKING_CANCELLATION);
 			}
