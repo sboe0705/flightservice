@@ -3,34 +3,42 @@ package de.gebit.training.vaadin.flightservice;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
+import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Notification.Type;
 
 import de.gebit.training.vaadin.workshop.service.Airport;
 import de.gebit.training.vaadin.workshop.service.Flight;
 import de.gebit.training.vaadin.workshop.service.TravelService;
+import de.gebit.training.vaadin.workshop.service.TravelServiceException;
 import de.gebit.training.vaadin.workshop.service.TravelServiceFactory;
 
 public class FlightMaintenanceView extends CustomComponent implements View {
 
 	private final TravelService travelService = TravelServiceFactory.getInstance();
-	
+
 	private final BeanItemContainer<Flight> flightContainer = new BeanItemContainer<>(Flight.class);
 
 	private final BeanItemContainer<Airport> airportContainer = new BeanItemContainer<>(Airport.class);
 
 	private Table table;
+
+	private final BeanFieldGroup<Flight> flightFieldGroup = new BeanFieldGroup<Flight>(Flight.class);
 
 	public FlightMaintenanceView() {
 		table = createTable();
@@ -65,8 +73,49 @@ public class FlightMaintenanceView extends CustomComponent implements View {
 	}
 
 	private FormLayout createForm() {
-		// TODO Create flight form!
-		return new FormLayout();
+		TextField numberTextField = new TextField("Number");
+		numberTextField.setRequired(true);
+		numberTextField.setRequiredError("Please enter a flight number!");
+		numberTextField.setNullRepresentation("");
+
+		TextField airlineTextField = new TextField("Airline");
+		airlineTextField.setRequired(true);
+		airlineTextField.setRequiredError("Please enter an airline!");
+		airlineTextField.setNullRepresentation("");
+
+		ComboBox departureAirportField = new ComboBox("Departure Airport");
+		departureAirportField.setTextInputAllowed(false);
+		departureAirportField.setRequired(true);
+		departureAirportField.setRequiredError("Please select a depature airport!");
+		departureAirportField.setItemCaptionPropertyId("name");
+		departureAirportField.setContainerDataSource(airportContainer);
+
+		ComboBox destinationAirportField = new ComboBox("Destination Airport");
+		destinationAirportField.setTextInputAllowed(false);
+		destinationAirportField.setRequired(true);
+		destinationAirportField.setRequiredError("Please select a destination airport!");
+		destinationAirportField.setItemCaptionPropertyId("name");
+		destinationAirportField.setContainerDataSource(airportContainer);
+
+		TextField priceField = new TextField("Price");
+		priceField.setRequired(true);
+		priceField.setRequiredError("Please enter a price!");
+		priceField.setNullRepresentation("");
+		priceField.setConverter(new StringToBigDecimalConverter());
+
+		DateField departureField = new DateField("Departure Date");
+		departureField.setDateFormat("dd.MM.yyyy");
+		departureField.setRequired(true);
+		departureField.setRequiredError("Please enter a departure date!");
+
+		flightFieldGroup.bind(numberTextField, "number");
+		flightFieldGroup.bind(airlineTextField, "airline");
+		flightFieldGroup.bind(departureAirportField, "departureAirport");
+		flightFieldGroup.bind(destinationAirportField, "destinationAirport");
+		flightFieldGroup.bind(priceField, "price");
+		flightFieldGroup.bind(departureField, "date");
+
+		return new FormLayout(numberTextField, airlineTextField, departureAirportField, destinationAirportField, priceField, departureField);
 	}
 
 	private HorizontalLayout createButtonBar() {
@@ -106,18 +155,18 @@ public class FlightMaintenanceView extends CustomComponent implements View {
 
 		});
 
-		Button cancelButton = new Button("Cancel");
-		cancelButton.addClickListener(new ClickListener() {
+		Button resetButton = new Button("Reset");
+		resetButton.addClickListener(new ClickListener() {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				onCancelButtonClick();
+				onResetButtonClick();
 			}
 		});
 
-		HorizontalLayout horizontalLayout = new HorizontalLayout(newButton, saveButton, deleteButton, cancelButton);
+		HorizontalLayout horizontalLayout = new HorizontalLayout(newButton, saveButton, deleteButton, resetButton);
 		horizontalLayout.setSpacing(true);
 		return horizontalLayout;
 	}
@@ -127,36 +176,55 @@ public class FlightMaintenanceView extends CustomComponent implements View {
 		airportContainer.addAll(travelService.getAirports());
 		refreshFlightTable();
 	}
-	
+
 	private void refreshFlightTable() {
 		flightContainer.removeAllItems();
 		flightContainer.addAll(travelService.getFlights());
 		table.setValue(null);
+
+		flightFieldGroup.setItemDataSource(new Flight());
 	}
 
 	private void onFlighSelect(Flight flight) {
-		// TODO Load selected flight for editing!
 		if (flight != null) {
-			Notification.show("Selected flight: " + flight.getNumber());
+			flightFieldGroup.setItemDataSource(flight);
 		} else {
-			Notification.show("Selected flight: " + null);
+			flightFieldGroup.setItemDataSource(new Flight());
 		}
 	}
 
 	private void onDeleteButtonClick() {
-		// TODO Delete selected flight!
+		Flight flight = flightFieldGroup.getItemDataSource().getBean();
+		if (flight.getNumber() != null) {
+			try {
+				travelService.deleteFlight(flight.getNumber());
+			} catch (TravelServiceException e) {
+				Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
+			}
+		}
+		refreshFlightTable();
 	}
 
 	private void onCreateButtonClick() {
-		// TODO Create new flight!
+		flightFieldGroup.setItemDataSource(new Flight());
 	}
 
 	private void onSaveButtonClick() {
-		// TODO Save current flight!
+		if (flightFieldGroup.isValid()) {
+			try {
+				flightFieldGroup.commit();
+			} catch (CommitException e) {
+				Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
+			}
+			Flight flight = flightFieldGroup.getItemDataSource().getBean();
+			travelService.saveFlight(flight);
+			flightFieldGroup.setItemDataSource(new Flight());
+		}
+		refreshFlightTable();
 	}
 
-	private void onCancelButtonClick() {
-		// TODO Discard changed on current flight!
+	private void onResetButtonClick() {
+		flightFieldGroup.discard();
 	}
 
 }
