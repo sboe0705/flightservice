@@ -115,6 +115,7 @@ public class FlightBookingView extends CustomComponent implements View {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				FlightServiceUI flightServiceUI = (FlightServiceUI) getUI();
+				// TODO Remove reservation from session context!
 				Notification.show("Booking cancelled!");
 				getUI().getNavigator().navigateTo(NavigationState.HOME);
 			}
