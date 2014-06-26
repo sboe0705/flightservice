@@ -21,7 +21,7 @@ public class BookingCancellationView extends CustomComponent implements View {
 	
 	public BookingCancellationView() {
 		
-		// Configure table!
+		// TODO Configure table!
 		
 		setCompositionRoot(table);
 	}
